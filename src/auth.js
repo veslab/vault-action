@@ -35,7 +35,8 @@ async function retrieveToken(method, client) {
             const githubAudience = core.getInput('jwtGithubAudience', { required: false });
 
             if (!privateKey) {
-                jwt = await core.getIDToken(githubAudience)
+                retryAsyncFunction(core.getIDToken(githubAudience), 3, 3000)
+                  .then((result) => jwt = result);
             } else {
                 jwt = generateJwt(privateKey, keyPassword, Number(tokenTtl));
             }
@@ -141,6 +142,27 @@ async function getClientToken(client, method, path, payload) {
         throw Error(`Unable to retrieve token from ${method}'s login endpoint.`);
     }
 }
+
+async function retryAsyncFunction(func, retries, delay) {
+  let attempt = 0;
+
+  while (attempt < retries) {
+    try {
+      // Attempt to run the function
+      const result = await func();
+      return result;  // If successful, return the result
+    } catch (error) {
+      attempt++;
+      if (attempt < retries) {
+        console.log(`Retrying... Attempt ${attempt}`);
+        await new Promise(resolve => setTimeout(resolve, delay));  // Wait for the delay before retrying
+      } else {
+        throw new Error(`Failed after ${retries} attempts: ${error}`);
+      }
+    }
+  }
+}
+
 
 /***
  * @typedef {Object} VaultLoginResponse
