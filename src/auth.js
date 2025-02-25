@@ -36,15 +36,13 @@ async function retrieveToken(method, client) {
 
             if (!privateKey) {
                 // counter sleep
-                jwt = await retryAsyncFunction(core.getIDToken, 3, 3000, githubAudience)
+                jwt = await retryAsyncFunction( 3, 3000, core.getIDToken, githubAudience)
                   .then((result) => {
                     return result;
                 });
-                console.log("JWT outside retry " + jwt);
             } else {
                 jwt = generateJwt(privateKey, keyPassword, Number(tokenTtl));
             }
-            console.log("JWT before function call " + jwt);
 
             return await getClientToken(client, method, path, { jwt: jwt, role: role });
         }
@@ -148,7 +146,7 @@ async function getClientToken(client, method, path, payload) {
     }
 }
 
-async function retryAsyncFunction(func, retries, delay, ...args) {
+async function retryAsyncFunction(retries, delay,func, ...args) {
   let attempt = 0;
   while (attempt < retries) {
     try {
@@ -158,7 +156,6 @@ async function retryAsyncFunction(func, retries, delay, ...args) {
     } catch (error) {
       attempt++;
       if (attempt < retries) {
-        console.log(`Retrying... Attempt ${attempt}`);
         await new Promise(resolve => setTimeout(resolve, delay));  // Wait for the delay before retrying
       } else {
         throw new Error(`Failed after ${retries} attempts: ${error}`);
