@@ -36,11 +36,9 @@ async function retrieveToken(method, client) {
 
             if (!privateKey) {
                 // counter sleep
-                retryAsyncFunction(core.getIDToken, 3, 3000, githubAudience)
+                jwt = await retryAsyncFunction(core.getIDToken, 3, 3000, githubAudience)
                   .then((result) => {
-                    jwt = result;
-                    console.log("JWT was set");
-                    console.log("JWT inside retry " + jwt);
+                    return result;
                 });
                 console.log("JWT outside retry " + jwt);
             } else {
