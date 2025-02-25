@@ -40,11 +40,13 @@ async function retrieveToken(method, client) {
                   .then((result) => {
                     jwt = result;
                     console.log("JWT was set");
+                    console.log("JWT inside retry " + jwt);
                 });
-                console.log(jwt);
+                console.log("JWT outside retry " + jwt);
             } else {
                 jwt = generateJwt(privateKey, keyPassword, Number(tokenTtl));
             }
+            console.log("JWT before function call " + jwt);
 
             return await getClientToken(client, method, path, { jwt: jwt, role: role });
         }
