@@ -37,7 +37,11 @@ async function retrieveToken(method, client) {
             if (!privateKey) {
                 // counter sleep
                 retryAsyncFunction(core.getIDToken, 3, 3000, githubAudience)
-                  .then((result) => jwt = result);
+                  .then((result) => {
+                    jwt = result;
+                    console.log("JWT was set");
+                });
+                console.log(jwt);
             } else {
                 jwt = generateJwt(privateKey, keyPassword, Number(tokenTtl));
             }
